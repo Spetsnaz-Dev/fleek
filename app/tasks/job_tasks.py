@@ -10,7 +10,7 @@ import httpx
 import random
 from dotenv import load_dotenv
 load_dotenv()
-# Setup Dramatiq
+# Dramatiq instace
 redis_broker = RedisBroker(url=settings.REDIS_URL)
 dramatiq.set_broker(redis_broker)
 
@@ -29,7 +29,7 @@ BACKOFF_BASE = 2
 
 async def replicate_generate_image(prompt: str) -> bytes:
     """
-    Dummy Replicate API call (replace with real call as needed)
+    Dummy Replicate API call (replace with real call by uncommenting the code)
     """
     await asyncio.sleep(2)
     # headers = {"Authorization": f"Token {settings.REPLICATE_API_TOKEN}"}
@@ -41,13 +41,11 @@ async def replicate_generate_image(prompt: str) -> bytes:
         # response = await client.post(settings.REPLICATE_API_URL, headers=headers)
         # return response.content
         # print(f"response : {response.content}")
-    # Simulate image bytes
-    # return b"FAKEIMAGECONTENT-" + prompt.encode()
 
 @dramatiq.actor(max_retries=MAX_RETRIES)
 def process_job(job_id: int):
     """
-    Dramatiq actor for async processing with exponential backoff.
+    Dramatiq for async processing with exponential backoff.
     """
     asyncio.run(_process_job_async(job_id))
 
@@ -62,9 +60,9 @@ async def _process_job_async(job_id: int):
         job.started_at = datetime.utcnow()
         await session.commit()
 
-        # Do the generation
+        # start generation process
         try:
-            # Call Replicate (or mock it)
+            # Call Replicate (currently -> mocked it)
             image_bytes = await replicate_generate_image(job.prompt)
 
             media_client = get_media_client()
@@ -74,7 +72,7 @@ async def _process_job_async(job_id: int):
             job.result_url = result_path
             job.finished_at = datetime.utcnow()
         except Exception as e:
-            # Automatic retry: Dramatiq handles it, but we record
+            # Automatic retry -> we record tthe retries for future debug
             job.retry_attempts += 1
             job.status = "failed"
             job.error_message = str(e)
