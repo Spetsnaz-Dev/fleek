@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+dramatiq[redis]
+sqlmodel
+sqlalchemy[asyncio]
+asyncpg
+alembic
+python-dotenv
+httpx
+pydantic
+pydantic-settings>=2.0.0
